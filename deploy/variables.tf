@@ -47,3 +47,19 @@ variable "container_name" {
 variable "function_app_name" {
   default = "wvtransactionsapp"
 }
+
+variable "asp_diagnostics" {
+  default = "aspdiagnostics"
+}
+
+variable "cosmos_diagnostics" {
+  default = "cosmosdiagnostics"
+}
+
+variable "service_bus_diagnostics" {
+  default = "servicebusdiagnostics"
+}
+
+variable "function_diagnostics" {
+  default = "funcdiagnostics"
+}

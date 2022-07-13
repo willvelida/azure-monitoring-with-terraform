@@ -17,6 +17,8 @@ resource "azurerm_resource_group" "rg" {
     location = var.location
 }
 
+
+## Azure Log Analytics
 resource "azurerm_log_analytics_workspace" "law" {
   name = var.log_analytics_workspace
   location = azurerm_resource_group.rg.location
@@ -25,6 +27,7 @@ resource "azurerm_log_analytics_workspace" "law" {
   retention_in_days = 30
 }
 
+## Application Insights
 resource "azurerm_application_insights" "ai" {
   name = var.app_insights_name
   location = azurerm_resource_group.rg.location
@@ -33,6 +36,7 @@ resource "azurerm_application_insights" "ai" {
   application_type = "web"
 }
 
+## App Service Plan
 resource "azurerm_service_plan" "asp" {
   name = var.app_service_plan_name
   resource_group_name = azurerm_resource_group.rg.name
@@ -44,6 +48,7 @@ resource "azurerm_service_plan" "asp" {
   zone_balancing_enabled = true
 }
 
+## Azure Storage
 resource "azurerm_storage_account" "funcstor" {
   name = var.storage_account_name
   resource_group_name = azurerm_resource_group.rg.name
@@ -54,6 +59,7 @@ resource "azurerm_storage_account" "funcstor" {
   enable_https_traffic_only = true
 }
 
+## Azure Service Bus
 resource "azurerm_servicebus_namespace" "sbnamespace" {
   name = var.service_bus_namespace_name
   location = azurerm_resource_group.rg.location
@@ -69,6 +75,7 @@ resource "azurerm_servicebus_queue" "sbqueue" {
   enable_express = false
 }
 
+## Azure Cosmos DB
 resource "azurerm_cosmosdb_account" "cosmosdb" {
   name = var.cosmos_account_name
   location = azurerm_resource_group.rg.location
@@ -102,6 +109,7 @@ resource "azurerm_cosmosdb_sql_container" "container" {
   }
 }
 
+## Function App
 resource "azurerm_linux_function_app" "funcapp" {
     name = var.function_app_name
     resource_group_name = azurerm_resource_group.rg.name
@@ -116,4 +124,79 @@ resource "azurerm_linux_function_app" "funcapp" {
     site_config {
       
     }
+}
+
+## Diagnostic Settings
+resource "azurerm_monitor_diagnostic_setting" "aspdiag" {
+    name = var.asp_diagnostics
+    target_resource_id = azurerm_service_plan.asp.id
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
+
+    metric {
+     category = "AllMetrics"
+     enabled = true 
+    }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "cosmosdiag" {
+  name = var.cosmos_diagnostics
+  target_resource_id = azurerm_cosmosdb_account.cosmosdb.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
+
+  metric {
+    category = "Requests"
+    enabled = true
+  }
+
+  log {
+    category = "DataPlaneRequests"
+    enabled = true
+  }
+
+  log {
+    category = "QueryRuntimeStatistics"
+    enabled = true
+  }
+
+  log {
+    category = "PartitionKeyStatistics"
+    enabled = true
+  }
+
+  log {
+    category = "PartitionKeyRUConsumption"
+    enabled = true
+  }
+
+  log {
+    category = "ControlPlaneRequests"
+    enabled = true
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "sbdiag" {
+  name = var.service_bus_diagnostics
+  target_resource_id = azurerm_service_plan.asp.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
+
+  metric {
+     category = "AllMetrics"
+     enabled = true 
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "funcdiag" {
+  name = var.function_diagnostics
+  target_resource_id = azurerm_linux_function_app.funcapp.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
+
+  metric {
+     category = "AllMetrics"
+     enabled = true 
+  }
+
+  log {
+   category = "FunctionAppLogs"
+   enabled = true 
+  }
 }

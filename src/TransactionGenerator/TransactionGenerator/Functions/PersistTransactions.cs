@@ -1,11 +1,10 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 using TransactionGenerator.Models;
 
 namespace TransactionGenerator.Functions
@@ -26,7 +25,7 @@ namespace TransactionGenerator.Functions
         }
 
         [FunctionName(nameof(PersistTransactions))]
-        public async Task Run([ServiceBusTrigger("transactions", Connection = "SERVICE_BUS_CONNECTION_STRING")]string myQueueItem)
+        public async Task Run([ServiceBusTrigger("transactions", Connection = "SERVICE_BUS_CONNECTION_STRING")] string myQueueItem)
         {
             try
             {

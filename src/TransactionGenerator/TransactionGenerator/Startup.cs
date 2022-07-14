@@ -4,11 +4,7 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TransactionGenerator;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -32,7 +28,11 @@ namespace TransactionGenerator
                 CosmosClientOptions cosmosClientOptions = new CosmosClientOptions
                 {
                     MaxRetryAttemptsOnRateLimitedRequests = 3,
-                    MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(10)
+                    MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(10),
+                    SerializerOptions = new CosmosSerializationOptions
+                    {
+                        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                    }
                 };
                 return new CosmosClient(configuration["COSMOS_CONNECTION_STRING"], cosmosClientOptions);
             });

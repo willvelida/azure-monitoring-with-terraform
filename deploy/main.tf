@@ -120,6 +120,11 @@ resource "azurerm_linux_function_app" "funcapp" {
     app_settings = {
       "APPINSIGHTS_INSTRUMENTATIONKEY" = "${azurerm_application_insights.ai.instrumentation_key}"
       "APPLICATIONINSIGHTS_CONNECTION_STRING" = "InstrumentationKey=${azurerm_application_insights.ai.instrumentation_key};IngestionEndpoint=https://australiaeast-1.in.applicationinsights.azure.com/;LiveEndpoint=https://australiaeast.livediagnostics.monitor.azure.com/"
+      "COSMOS_CONNECTION_STRING" = "${azurerm_cosmosdb_account.cosmosdb.connection_strings[0]}",
+      "SERVICE_BUS_CONNECTION_STRING" = "${azurerm_servicebus_namespace.sbnamespace.default_primary_connection_string}",
+      "QUEUE_NAME" = "${azurerm_servicebus_queue.sbqueue.name}",
+      "DATABASE_NAME" = "${azurerm_cosmosdb_sql_database.db.name}",
+      "CONTAINER_NAME" = "${azurerm_cosmosdb_sql_container.container.name}"
     }
     site_config {
       
@@ -171,17 +176,6 @@ resource "azurerm_monitor_diagnostic_setting" "cosmosdiag" {
   log {
     category = "ControlPlaneRequests"
     enabled = true
-  }
-}
-
-resource "azurerm_monitor_diagnostic_setting" "sbdiag" {
-  name = var.service_bus_diagnostics
-  target_resource_id = azurerm_service_plan.asp.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
-
-  metric {
-     category = "AllMetrics"
-     enabled = true 
   }
 }
 
